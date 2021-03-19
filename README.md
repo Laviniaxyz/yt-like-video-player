@@ -1,6 +1,6 @@
 UI - Done
 
-Next stepts:
+Next steps:
 1. Check HTML5 Video APi 
 2. Add logic to UI (React)
 

@@ -23,13 +23,11 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 const VideoItem = ({isPlaying, setIsPlaying, isMuted, openedSettings, setOpenedSettings}) => {
   
   const videoRef = useRef(null)
-  const progressRef = useRef(null)
   const [progress, setProgress] = useState(0)
- 
+  
   
 
   const togglePlay = () => {
-    //console.log(videoRef.current)
     if (videoRef.current.paused) {
       videoRef.current.play()
       setIsPlaying(true)
@@ -56,9 +54,7 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, openedSettings, setOpenedS
     }
   }, [progress, isPlaying])
   
-  const showTimestamp = () => {
-    console.log(progressRef.current)
-  }
+ 
 
   return(
       <div className='vp-container'>
@@ -98,11 +94,9 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, openedSettings, setOpenedS
         <Box display="flex" alignItems="center">
           <Box width="100%"  mr={1}>
             <LinearProgress 
-              ref={progressRef}
               variant="determinate"
-               
               value={progress} 
-              onClick={showTimestamp}/>
+              />
 
           </Box>
         </Box>

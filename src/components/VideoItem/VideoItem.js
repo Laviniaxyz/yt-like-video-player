@@ -1,3 +1,4 @@
+import {useRef, useState, useEffect} from 'react'
 import './VideoItem.scss'
 
 import VideoKamua from '../../video/Kamua.mp4'
@@ -19,14 +20,54 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 
 
-const VideoItem = ({isPlayling, isMuted, openedSettings}) => {
+const VideoItem = ({isPlaying, setIsPlaying, isMuted, openedSettings, setOpenedSettings}) => {
+  
+  const videoRef = useRef(null)
+  const progressRef = useRef(null)
+  const [progress, setProgress] = useState(0)
+ 
+  
+
+  const togglePlay = () => {
+    //console.log(videoRef.current)
+    if (videoRef.current.paused) {
+      videoRef.current.play()
+      setIsPlaying(true)
+    } else {
+      videoRef.current.pause()
+      setIsPlaying(false)
+    }
+  }
+
+  const toggleSpeedNav = () => {
+    setOpenedSettings(!openedSettings)
+  }
+
+  useEffect(()=> {
+    if (isPlaying) {
+      const timer = setInterval(()=> {
+        setProgress((videoRef.current.currentTime / videoRef.current.duration) *100)
+         console.log(videoRef.current.currentTime, 'currTme')
+      }, [500])
+      
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [progress, isPlaying])
+  
+  const showTimestamp = () => {
+    console.log(progressRef.current)
+  }
 
   return(
       <div className='vp-container'>
-        <div className='video'>
+        {/* VIDEO */}
+        <div className='video'  onClick={togglePlay}>
           <Card>
             <CardActionArea>
               <CardMedia 
+                ref={videoRef}
                 component="video"
                 autoPlay 
                 loop 
@@ -36,9 +77,11 @@ const VideoItem = ({isPlayling, isMuted, openedSettings}) => {
             </CardActionArea>
           </Card>
           <div className='image'>
-            <img src={PlayImage}/>
+           {isPlaying? <img src={PauseImage}/> : <img src={PlayImage}/>}
           </div>
-          <div className='speed'>
+          {openedSettings?
+          (
+            <div className='speed'>
             <div className='speed-title'>Playback Speed</div>
             <div>0.5</div>
             <div>0.75</div>
@@ -46,21 +89,32 @@ const VideoItem = ({isPlayling, isMuted, openedSettings}) => {
             <div>1.25</div>
             <div>1.5</div>
           </div>
+          )
+        :
+        null }
         </div>
+        {/* PROGRESS BAR */}
         <div className='progress-bar'>
         <Box display="flex" alignItems="center">
-          <Box width="60%" mr={1}>
-            <LinearProgress variant="determinate"  />
+          <Box width="100%"  mr={1}>
+            <LinearProgress 
+              ref={progressRef}
+              variant="determinate"
+               
+              value={progress} 
+              onClick={showTimestamp}/>
+
           </Box>
         </Box>
         </div>
+        {/* CONTROLS */}
         <div className='video-controls'>
           <div className='controls-left'>
-          {isPlayling? <div><PlayArrow/></div>: <div><Pause/></div>}
+          {isPlaying? <div onClick={togglePlay}><Pause/></div> : <div onClick={togglePlay}><PlayArrow/></div>}
           <div><VolumeUp/></div>
           </div>
           <div className='controls-right'>
-            <div><Settings /></div>
+            <div><Settings onClick={toggleSpeedNav}/></div>
             <div><Fullscreen/></div>
           </div>
         </div>

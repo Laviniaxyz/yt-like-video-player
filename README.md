@@ -1,8 +1,8 @@
 UI - Done
 
 Next stepts:
-=> Check HTML5 Video APi 
-=> Add logic to UI (React)
+1. Check HTML5 Video APi 
+2. Add logic to UI (React)
 
-=> Add Types (hooks, props, functions?)
-=> Refactor to use MobX for state handling
+3. Add Types (hooks, props, functions?)
+4. Refactor to use MobX for state handling

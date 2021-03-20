@@ -13,7 +13,7 @@ const App = () => {
   return(
     <div className='main-screen'> 
       <h1 className='title'>Custom Video Player</h1>
-      <VideoItem isPlaying={isPlaying} isMuted={isMuted} openedSettings={openedSettings} setIsPlaying={setIsPlaying} setOpenedSettings={setOpenedSettings}/>
+      <VideoItem isPlaying={isPlaying} isMuted={isMuted} openedSettings={openedSettings} setIsPlaying={setIsPlaying} setOpenedSettings={setOpenedSettings} setIsMuted={setIsMuted}/>
     </div>
   )
 }

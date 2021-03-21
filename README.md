@@ -1,8 +1,7 @@
-UI - Done
+UI - Done,  Add logic to UI - 80% Done
 
 Next steps:
-1. Check HTML5 Video APi 
-2. Add logic to UI (React)
-
+1. Split code into smaller components
+2. Finish features left 
 3. Add Types (hooks, props, functions?)
 4. Refactor to use MobX for state handling

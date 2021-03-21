@@ -21,18 +21,24 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 
 
+
 const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings, setOpenedSettings}) => {
   
   const videoRef = useRef(null)
-  const progressRef = useRef()
+  const volumeProgressRef = useRef()
+  const videoProgressRef = useRef()
   const [progress, setProgress] = useState(0)
-  const [progressVolume, setProgressVolume] = useState(100)
+  const [progressVolume, setProgressVolume] = useState(1)
   const [timestamp, setTimestamp] = useState('00:00')
+  const [animation, setAnimation] = useState(false)  
 
-  
-  
 
   const togglePlay = () => {
+    setAnimation(true)
+
+    setTimeout(() => {
+      setAnimation(false)
+    }, 1000);
     if (videoRef.current.paused) {
       videoRef.current.play()
       setIsPlaying(true)
@@ -40,30 +46,44 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
       videoRef.current.pause()
       setIsPlaying(false)
     }
+    
   }
 
+  //Toggle playback speed tab
   const toggleSpeedNav = () => {
     setOpenedSettings(!openedSettings)
   }
 
   const toggleVolume = () => {
     setIsMuted(!isMuted)
-    if (videoRef.current.volume === 1) {
-        videoRef.current.volume = 0
-        setProgressVolume(0)
+    console.log(videoRef.current.volume, 'volume' )
+    if (videoRef.current.volume ===  1) {
+      videoRef.current.volume = 0
     } else {
       videoRef.current.volume = 1
-      setProgressVolume(100)
     }
   }
+
+  const changeVolume = () => {
+    setProgressVolume(volumeProgressRef.current.value)
+    videoRef.current.volume = volumeProgressRef.current.value
+    if (videoRef.current.volume === 0) {
+      setIsMuted(true)
+    } else {
+      setIsMuted(false)
+    }
+  }
+
 
   useEffect(()=> {
     //Displaying progress and timestamp
     if (isPlaying) {
-      
+    // console.log(videoRef.current.duration, 'duration')
+     //console.log(videoRef.current.currentTime, 'currentTime')
+      //console.log(volumeProgressRef.current.getAttribute('value'), 'currentValue') 
       const timer = setInterval(()=> {
         setProgress((videoRef.current.currentTime / videoRef.current.duration) *100)
-         console.log(videoRef.current.currentTime, 'currTme')
+         //console.log(videoRef.current.currentTime, 'currTme')
 
          //Calculate timestamp
          let minutes = Math.floor(videoRef.current.currentTime / 60);
@@ -84,16 +104,27 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
     }
   }, [progress, isPlaying])
 
-  const setCurrentValue = () => {
-    console.log(progressRef.current.getAttribute('value'), 'currentValue') 
+    const toggleFullScreen =  () => {
+      videoRef.current.requestFullscreen()
+    } 
+
+
+  const setVideoProgress = () => {
+    console.log(videoProgressRef.current.value, 'progress value 2')
     
+    console.log((videoProgressRef.current.value * videoRef.current.duration)/100, 'cuurent time changed')
+    
+    setProgress(videoProgressRef.current.value)
+    videoRef.current.currentTime = (videoProgressRef.current.value * videoRef.current.duration)/100
   }
 
-  const toggleFullScreen =  () => {
-    videoRef.current.requestFullscreen()
-  } 
 
-  
+  const changePlaybackSpeed = (num) => {
+    videoRef.current.playbackRate = num
+    setOpenedSettings(false)
+  }
+
+ 
 
   return(
       <div className='vp-container'>
@@ -104,43 +135,36 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
               <CardMedia 
                 ref={videoRef}
                 component="video"
-                autoPlay 
-                loop 
+                //autoPlay 
+                //loop 
                 type='video/mp4' 
                 src={VideoKamua}
                 />
             </CardActionArea>
           </Card>
-          <div className='image'>
-           {isPlaying? <img src={PauseImage}/> : <img src={PlayImage}/>}
+          <div className='timestamp'>{timestamp}</div>
+          <div className={animation? 'image2' : 'image'}>
+            {isPlaying? <img src={PlayImage}/>: <img src={PauseImage}/> }
           </div>
+
           {openedSettings?
           (
             <div className='speed'>
             <div className='speed-title'>Playback Speed</div>
-            <div>0.5</div>
-            <div>0.75</div>
-            <div>Normal</div>
-            <div>1.25</div>
-            <div>1.5</div>
+            <div onClick={changePlaybackSpeed.bind(this, 0.5)}>0.5</div>
+            <div onClick={changePlaybackSpeed.bind(this, 0.75)}>0.75</div>
+            <div onClick={changePlaybackSpeed.bind(this, 1)}>Normal</div>
+            <div onClick={changePlaybackSpeed.bind(this, 1.25)}>1.25</div>
+            <div onClick={changePlaybackSpeed.bind(this, 1.5)}>1.5</div>
           </div>
           )
         :
         null }
+         
         </div>
         {/* PROGRESS BAR */}
         <div className='progress-bar'>
-          <div>{timestamp}</div>
-          <Box display="flex" alignItems="center">
-            <Box width="100%"  mr={1}>
-              <LinearProgress
-                onClick={setCurrentValue}
-                ref={progressRef} 
-                variant="determinate"
-                value={progress} 
-                />
-            </Box>
-          </Box>
+          <div><input ref={videoProgressRef} type="range" onChange={setVideoProgress} step="0.1" min="0" max="100" value={progress}/></div>
         </div>
         {/* CONTROLS */}
         <div className='video-controls'>
@@ -149,7 +173,7 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
           {isMuted? <div onClick = {toggleVolume}><VolumeOffIcon/></div>:  
             <div onClick = {toggleVolume} className='volume'><VolumeUp/></div>
           }
-           <div className='volumeProgress'><LinearProgress variant="determinate" value={progressVolume}/></div>
+          <div className='volumeProgress'><input ref={volumeProgressRef} type="range" onChange={changeVolume} step="0.05" min="0" max="1" value={progressVolume}/></div>
           </div>
           <div className='controls-right'>
             <div onClick={toggleSpeedNav}><Settings/></div>

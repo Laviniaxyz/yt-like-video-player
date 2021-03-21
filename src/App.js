@@ -8,7 +8,7 @@ const App = () => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [openedSettings, setOpenedSettings] = useState(false) 
-  console.log(isPlaying, 'isPlayingapp')
+  
 
   return(
     <div className='main-screen'> 

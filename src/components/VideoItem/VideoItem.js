@@ -1,4 +1,4 @@
-import {useRef, useState, useEffect} from 'react'
+import {useRef, useState, useEffect, useContext} from 'react'
 import './VideoItem.scss'
 
 import VideoKamua from '../../video/Kamua.mp4'
@@ -16,10 +16,12 @@ import Settings from '@material-ui/icons/Settings'
 import Fullscreen from '@material-ui/icons/Fullscreen'
 import Pause from '@material-ui/icons/Pause'
 
+import {StoreContext} from '../../App.js'
+import {useObserver} from 'mobx-react'
 
+const VideoItem = ({isMuted, setIsMuted, openedSettings, setOpenedSettings}) => {
+  const store = useContext(StoreContext)
 
-const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings, setOpenedSettings}) => {
-  
   const videoRef = useRef(null)
   const volumeProgressRef = useRef()
   const videoProgressRef = useRef()
@@ -35,10 +37,10 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
   const togglePlay = () => {
     if (videoRef.current.paused) {
       videoRef.current.play()
-      setIsPlaying(true)
+      store.setIsPlaying(true)
     } else {
       videoRef.current.pause()
-      setIsPlaying(false)
+      store.setIsPlaying(false)
     }
   }
 
@@ -50,7 +52,7 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
     }, 600);
     
     return () => { clearTimeout(timer)}
-  }, [isPlaying])
+  }, [store.isPlaying])
 
   //Toggle the appearance of playback speed tab
   const toggleSpeedNav = () => {
@@ -84,9 +86,9 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
     }
   }
 
-  //Displaying progress and timestamp
+  //Dstore.isPlaying progress and timestamp
   useEffect(()=> {
-    if (isPlaying) { 
+    if (store.isPlaying) { 
       const timer = setInterval(()=> {
         setProgress((videoRef.current.currentTime / videoRef.current.duration) *100)
          //Calculate timestamp
@@ -106,7 +108,7 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
         clearInterval(timer);
       };
     }
-  }, [progress, isPlaying])
+  }, [progress, store.isPlaying])
 
 
   const setVideoProgress = () => {
@@ -134,7 +136,7 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
     videoRef.current.requestFullscreen()
   } 
 
-  return(
+  return useObserver(() => (
       <div className='vp-container'  >
         {/* VIDEO */}
         <div className='video' onMouseMove={toggleControls} onClick={toggleControls}>
@@ -153,7 +155,7 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
           </Card>
           <div className='timestamp'>{timestamp}</div>
           <div className={animation? 'displayImage' : 'hideImage'}>
-            {isPlaying? <img src={PlayImage}/>: <img src={PauseImage}/> }
+            {store.isPlaying? <img src={PlayImage}/>: <img src={PauseImage}/> }
           </div>
 
           {openedSettings?
@@ -178,7 +180,7 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
         { showControls?
         <div className='video-controls' onMouseOver={toggleControls} onClick={toggleControls}>
           <div className='controls-left'>
-            {isPlaying? <div onClick={togglePlay} className='volume icon'><Pause/></div> : <div onClick={togglePlay} className='icon'><PlayArrow/></div>}
+            {store.isPlaying? <div onClick={togglePlay} className='volume icon'><Pause/></div> : <div onClick={togglePlay} className='icon'><PlayArrow/></div>}
             {isMuted? <div onClick = {toggleVolume} className='icon'><VolumeOffIcon/></div>:  
               <div onClick = {toggleVolume} className='volume icon'><VolumeUp/></div>
             }
@@ -195,7 +197,8 @@ const VideoItem = ({isPlaying, setIsPlaying, isMuted, setIsMuted, openedSettings
         }
       
       </div>
-  )
+      
+  ))
 }
 
 export default VideoItem
